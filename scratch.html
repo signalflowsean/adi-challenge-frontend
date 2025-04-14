@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+</style>
+<body>
+<!-- load the d3.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+  const NUM_WEBSOCKETS = 10;
+  const SECONDS = 3
+  const BATCH = 4
+  const MAX_POINTS = SECONDS * BATCH * 100;
+  const parseTime = d3.timeParse('%Y-%m-%dT%H:%M:%S.%L');
+  const convertTime = t => parseTime(t.slice(0, 23))
+  
+  const datasets = Array.from({ length: NUM_WEBSOCKETS }, () => []);
+  
+  const margin = {top: 20, right: 20, bottom: 30, left: 50}
+  const width = 960 - margin.left - margin.right
+  const height = 500 - margin.top - margin.bottom
+  
+  const x = d3.scaleTime().range([0, width]);
+  const y = d3.scaleLinear().range([height, 0]);
+  
+  const xAxis = d3.axisBottom(x).ticks(d3.timeSecond.every(1));
+  const yAxis = d3.axisLeft(y);
+
+  const valueline = d3.line()
+      .x(d => x(d.timestamp))
+      .y(d => y(d.value));
+
+  const connectedCount = 0;
+  const connected = () => {
+    connectedCount++;
+    if (connectedCount === NUM_WEBSOCKETS) {
+      animate();
+    }
+  }
+
+  const count = 0;
+  for (let i = 0; i < NUM_WEBSOCKETS; i++) {
+    const ws = new WebSocket(`ws://127.0.0.1:8000/producer/producer_${i}`);
+
+    ws.connected = connected;
+    ws.onmessage = e => {
+      
+      const array = JSON.parse(e.data)
+      const data = datasets[i];
+      
+      const sampledArray = [
+        ...array.filter((_, index) => index % BATCH === 0)
+      ].map(d => ({
+        value: d.value,
+        timestamp: convertTime(d.timestamp)
+      }));
+      
+      data.push(...sampledArray);
+
+      const pastMax = data.length > MAX_POINTS
+      if (pastMax) {
+        data.splice(0, 25); // Remove oldest points
+      }
+    }
+  }
+  
+  const svg = d3
+    .select('body')
+    .append('svg')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom)
+    .append('g')
+    .attr('transform', `translate(${margin.left}, ${margin.top})`)
+
+   // Add the paths for each WebSocket
+  const lines = Array.from({ length: NUM_WEBSOCKETS }, (_, i) =>
+    svg
+      .append('path')
+      .attr('class', `line line-${i}`)
+      .style('stroke', d3.schemeCategory10[i % 10]) // Use D3's color scheme for distinct colors
+      .style('fill', 'none')
+      .style('stroke-width', 2)
+  )
+  
+  const xAxisGroup = svg
+    .append('g')
+    .attr('class', 'x axis')
+    .attr('transform', `translate(0, ${height})`)
+
+  const yAxisGroup = svg
+    .append('g')
+    .attr('class', 'y axis')
+
+  const clipPath = svg
+    .append('defs')
+    .append('clipPath')
+    .attr('id', 'clip')
+    .append('rect')
+    .attr('width', width)
+    .attr('height', height)
+
+  const updateDomains = () => {
+    const data = datasets.flat()
+    x.domain(d3.extent(data, d => d.timestamp ));
+    y.domain([d3.min(data, d => d.value), d3.max(data, d => d.value)]);
+  }
+
+  let lastUpdate = 0;
+  const UPDATE_INTERVAL = 50;
+
+  function animate(timestamp) {
+    if (timestamp - lastUpdate >= UPDATE_INTERVAL) {
+      updateDomains()
+      for (let i = 0; i < NUM_WEBSOCKETS; i++) {
+        updateLineAt(i)
+      } 
+      xAxisGroup.transition().duration(250).call(xAxis)
+      yAxisGroup.transition().duration(250).call(yAxis)
+      lastUpdate = timestamp
+    }
+
+    
+    requestAnimationFrame(animate)
+  }
+
+
+  const updateLineAt = (lineNum) => {
+    const path = lines[lineNum];
+    const data = datasets[lineNum];
+    
+    path.datum(data)
+      .attr('d', valueline)
+  }
+
+  requestAnimationFrame(animate);
+  
+</script>
+</body>

@@ -1,42 +1,173 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+@layer reset, base, layout, components, utilities;
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@layer reset {
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
-  to {
-    transform: rotate(360deg);
+  
+  * {
+    margin: 0;
+    padding: 0;
+    font: inherit; /* Get rid of all font sizes and heights */
+  }
+  
+  html {
+    color-scheme: dark light; /* Default dark */
+    hanging-punctuation: first last; /* Not supported in Chrome */
+  }
+  
+  body {
+    min-height: 100vh;
+  }
+  
+  /* Media responsive */
+  img, picture, svg, video {
+    display: block;
+    max-width: 100%;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+  }
+  
+  p {
+    max-width: 75ch;
+    text-wrap: pretty; /* Prevents orphans on lines */
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    :has(:target) {
+      scroll-behavior: smooth;
+      scroll-padding-top: 3rem;
+    }
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@layer base {
+  :root {
+    --clr-primary : #FFFFFF;
+    --clr-secondary : #000000;
+    /* font-size: clamp(0.625rem, 2vw + 1rem, 1rem); */
+  }
+
+  body {
+    background-color: var(--clr-secondary);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--clr-primary)
+  }
+  
+  h1 {
+    font-size: 3.2em;
+    line-height: 1.1;
+  }
+
+}
+
+@layer layout {
+  header {
+    text-align: center;
+    padding: 0.5rem 2rem;
+    width: 100%;
+    border-bottom: var(--clr-primary) 1px dotted;
   }
 }
 
-.card {
-  padding: 2em;
-}
+@layer components {
+  .graph-wrapper {
+    display: flex;
+    padding: 2rem;
+    margin-top: 3rem; 
+  }
 
-.read-the-docs {
-  color: #888;
+
+  .legend-wrapper {
+    min-width: 14rem;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    border-radius: 3px;
+    padding: 1rem;
+    margin-left: 1rem;
+    margin-bottom: auto;
+
+    background-color: var(--clr-secondary);
+    border: 1px solid var(--clr-primary);
+  }
+
+  .legend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .legend-item-wrapper {
+    display: flex;
+    cursor: pointer;
+    text-wrap-mode: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .legend-item-wrapper:last-child {
+    margin-bottom: 0;
+  }
+
+  .legend-item-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    color: var(--clr-primary);
+  }
+
+  .legend-item-color {
+    border-radius: 50%;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .legend-item-checkbox {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .legend-item-average {
+    width: 10ch;
+    text-align: left;
+  }
+
+  .legend-item-average-symbol {
+    text-align: left;
+  }
+
+  button {
+    background-color: var(--clr-primary);
+    color: var(--clr-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    border: 1px solid var(--clr-primary);
+  }
+
+  button:last-child {
+    margin-right: 0;
+  }
+
+  button:hover {
+    background-color: var(--clr-secondary);
+    color: var(--clr-primary);
+  }
+
+  @media (width < 800px) {
+    .graph-wrapper {
+      flex-direction: column;
+    }
+  }
 }
