@@ -22,6 +22,6 @@ Start server: `cargo run --release`
 
 Navigate to folder: `cd adi-challenge-frontend`
 
-Install dependencies: Run `npm i` to 
+Install dependencies: `npm i`
 
 Start server: `npm run dev`
