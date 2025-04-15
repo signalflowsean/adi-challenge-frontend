@@ -7,7 +7,7 @@ https://github.com/user-attachments/assets/13528427-22c0-4bd6-a880-0772f4ff0300
 
 
 ## Getting Started
-**Note:** React + TS boilerplate was generated with [Vite](https://vite.dev/) and was generated with the following versions:
+**Note:** React + TS boilerplate was generated with [Vite](https://vite.dev/) with the following versions installed:
 * node - v22.14.0
 * npm - 11.2.0
 
