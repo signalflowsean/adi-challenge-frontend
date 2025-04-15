@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useProducers } from '../producers/ProducersProvider'
-import { NUM_PRODUCERS } from '../../constants'
+import { COLOR_SCHEME, NUM_PRODUCERS } from '../../constants'
 import * as d3 from 'd3'
 
 const onToggleVisibility = (producerIndex: number, visible: boolean) => {
@@ -48,7 +48,7 @@ const Legend: React.FC = () => {
             visible={visibility[i]}
             onToggle={handleToggle}
             average={averages[i]}
-            color={d3.schemeCategory10[i % 10]}
+            color={COLOR_SCHEME[i % NUM_PRODUCERS]}
           />
         ))}
       </ul>
@@ -70,7 +70,6 @@ const LegendItem = ({ producerIndex, visible, onToggle, average, color }: Legend
       className="legend-item-wrapper"
       key={producerIndex}
       style={{ accentColor: color}}
-      onClick={() => onToggle(producerIndex)}
     >
       <label
         className="legend-item-label"
@@ -89,6 +88,7 @@ const LegendItem = ({ producerIndex, visible, onToggle, average, color }: Legend
         type="checkbox"
         checked={visible}
         name={`producer-${producerIndex}-visibility`}
+        onChange={() => onToggle(producerIndex)}
         className="legend-item-checkbox"
       />
     </li>

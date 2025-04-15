@@ -1,3 +1,4 @@
+import * as d3 from 'd3'
 export const NUM_PRODUCERS = 10
 export const SOCKET_URL_PREFIX = 'ws://127.0.0.1:8000/producer/'
 export const BATCH_SIZE = 100
@@ -14,5 +15,7 @@ export type Margin = {
   left: number
 }
 
+export const COLOR_SCHEME = d3.schemeCategory10
+export const TICK_COUNT = 5
 export const HEIGHT = 500
-export const MARGIN: Margin = { top: 32, right: 32, bottom: 32, left: 32 } 
+export const MARGIN: Margin = { top: 32, right: 32, bottom: 32, left: 32 }

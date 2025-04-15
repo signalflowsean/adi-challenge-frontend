@@ -18,7 +18,7 @@ const Graph = () => {
 
     // TODO: don't animate axes everytime?
     animateAxes(xAxisSvg, yAxisSvg, xAxis, yAxis)
-  }, [producers, graphContainer, axes, allSocketsConnected])
+  }, [producers, graphContainer, axes, allSocketsConnected, lineData])
 
   return (
     <svg 

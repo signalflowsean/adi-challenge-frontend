@@ -31,18 +31,11 @@ const useConnectToProducers = () : useConnectToProducersReturnType => {
         return prevProducers
       }
   
-      const _producers = prevProducers.map(producer => [...producer])
-      const producer = _producers[producerIdx] as Producer
+      const updatedProducers = prevProducers.map(producer => [...producer])
+      const producer = updatedProducers[producerIdx] as Producer
   
       const batch: ProducerValue[] = JSON.parse(messageEvent.data)
-
-      // Downsampling
-      const evenlyDistributedSampledBatch = batch
-        .filter((_, index) => index % Math.ceil(BATCH_SIZE / REDUCED_BATCH_SIZE) === 0)
-        .map((producerValue) => ({
-          value: producerValue.value,
-          timestamp: convertTime(producerValue.timestamp as string) as Date
-        }))
+      const evenlyDistributedSampledBatch = downsampleBatch(batch)
   
       producer.push(...evenlyDistributedSampledBatch)
 
@@ -51,16 +44,14 @@ const useConnectToProducers = () : useConnectToProducersReturnType => {
         producer.splice(0, REDUCED_BATCH_SIZE)
       }
 
-      // Update running average
-      const total = producer.reduce((sum, value) => sum + value.value, 0)
-      const average = total / producer.length
+      const average = calculateAverage(producer)
       setAverages((prevAverages) => {
         const newAverages = [...prevAverages]
         newAverages[producerIdx] = average
         return newAverages
       })
 
-      return _producers
+      return updatedProducers
     })
   }
 
@@ -97,3 +88,17 @@ const useConnectToProducers = () : useConnectToProducersReturnType => {
 }
 
 export default useConnectToProducers
+
+const downsampleBatch = (batch: ProducerValue[]): ProducerValue[] => {
+  return batch
+    .filter((_, index) => index % Math.ceil(BATCH_SIZE / REDUCED_BATCH_SIZE) === 0)
+    .map((producerValue) => ({
+      value: producerValue.value,
+      timestamp: convertTime(producerValue.timestamp as string) as Date,
+    }))
+}
+
+const calculateAverage = (producer: Producer): number => {
+  const total = producer.reduce((sum, value) => sum + value.value, 0)
+  return producer.length > 0 ? total / producer.length : 0
+}
